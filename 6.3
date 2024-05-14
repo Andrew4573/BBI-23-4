@@ -1,0 +1,84 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+/*
+ Японская радиокомпания провела опрос радиослушателей по трем вопросам:
+а). Какое животное Вы связываете с Японией и японцами?
+б). Какая черта характера присуща японцам больше всего?
+в). Какай неодушевленный предмет или понятие Вы связываете с Японией?
+Большинство опрошенных прислали ответы на все или часть вопросов.
+Составить программу получения первых пяти наиболее часто встречающихся
+ответов по каждому вопросу и доли (в %) каждого такого ответа.
+Предусмотреть необходимость сжатия столбца ответов в случае отсутствия
+ответов на некоторые вопросы.
+ */
+
+class Program
+{
+    static void Main()
+    {
+        var rnd = new Random();
+        var firstQuestionVars = new[]
+        {
+            "Аист малый", "Бакланы", "Барсук", "Волк", "Дятел",
+            "Енотовидная собака", "Заяц", "Иволга", "Кабан", "Кит"
+        };
+        var secondQuestionVars = new[]
+        {
+            "Дисциплинированность", "Сдержанность", "Стремление", "Патриотизм", "Экономия",
+            "Бережное отношение к природе", "Коллективизм", "Трудолюбие", "Уважение", "Традиционализм"
+        };
+        var thirdQuestionVars = new[]
+        {
+            "Сакура", "фейерверк", "Бонсай", "Чай", "Кимоно",
+            "Сакэ", "аниме", "Тории", "Фугу", "Бусидо"
+        };
+
+        var firstQuestionAnswers = new List<string>();
+        var secondQuestionAnswers = new List<string>();
+        var thirdQuestionAnswers = new List<string>();
+        for (var i = 0; i < 100; i++)
+        {
+            firstQuestionAnswers.Add(firstQuestionVars[rnd.Next(firstQuestionVars.Length)]);
+            secondQuestionAnswers.Add(secondQuestionVars[rnd.Next(secondQuestionVars.Length)]);
+            thirdQuestionAnswers.Add(thirdQuestionVars[rnd.Next(thirdQuestionVars.Length)]);
+        }
+
+        Console.WriteLine("Топ 5 ответов на вопрос - Какое животное Вы связываете с Японией и японцами?");
+        GetTopAnswers(firstQuestionAnswers);
+        Console.WriteLine("\nТоп 5 ответов на вопрос - Какая черта характера присуща японцам больше всего?");
+        GetTopAnswers(secondQuestionAnswers);
+        Console.WriteLine("\nТоп 5 ответов на вопрос - Какай неодушевленный предмет или понятие Вы связываете с Японией?");
+        GetTopAnswers(thirdQuestionAnswers);
+    }
+
+    static void GetTopAnswers(List<string> answers)
+    {
+        var dictionary = new Dictionary<string, int>();
+
+        foreach (var answer in answers)
+        {
+            if (!dictionary.ContainsKey(answer))
+            {
+                dictionary[answer] = 1;
+            }
+            else
+            {
+                dictionary[answer]++;
+            }
+        }
+
+        var keyValuePairs = dictionary
+            .OrderBy(x => x.Value)
+            .Reverse()
+            .ToList();
+
+        for (var i = 0; i < 5; i++)
+        {
+            var entry = keyValuePairs[i];
+            var percentage = ((double) entry.Value / answers.Count) * 100;
+            Console.WriteLine($"'{entry.Key}': {percentage:F2}%");
+        }
+    }
+}
