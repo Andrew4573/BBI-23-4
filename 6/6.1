@@ -1,0 +1,53 @@
+using System;//1
+using System.Collections.Generic;
+using System.Linq;
+
+/*
+ Группе студентов в результате полусеместровой аттестации были выставлены
+ оценки по информатике, а также определено количество пропущенных занятий.
+ Успеваемость каждого студента оценивается следующими баллами: «0»
+ (неаттестован), «2», «3», «4» или «5». Вывести список неуспевающих (оценка «2»)
+ студентов в порядке убывания количества пропущенных ими занятий.
+ */
+
+class Program
+{
+    static void Main()
+    {
+        // Список неуспевающих студентов
+        List<Student> failingStudents = new List<Student>();
+        
+        // Добавляем студентов в список
+        failingStudents.Add(new Student("Иванов", 2, 3));
+        failingStudents.Add(new Student("Смирнов", 0, 3));
+        failingStudents.Add(new Student("Петров", 2, 1));
+        failingStudents.Add(new Student("Кузнецов", 5, 1));
+        failingStudents.Add(new Student("Сидоров", 2, 2));
+        failingStudents.Add(new Student("Попов", 4, 2));
+        failingStudents.Add(new Student("Павлов", 3, 2));
+
+        var enumerator = failingStudents
+            .Where(student => student.Grade == 2)
+            .OrderBy(x => x.MissedClasses).ToList();
+        foreach (var student in enumerator)
+        {
+            Console.WriteLine($"{student.LastName} пропустил(а) {student.MissedClasses} занятия.");
+        }
+    }
+}
+
+// Класс для представления студента
+class Student
+{
+    public string LastName { get; set; }
+    public int Grade { get; set; }
+    public int MissedClasses { get; set; }
+    
+    // Конструктор
+    public Student(string lastName, int grade, int missedClasses)
+    {
+        LastName = lastName;
+        Grade = grade;
+        MissedClasses = missedClasses;
+    }
+}
