@@ -3,52 +3,83 @@ using System.Collections.Generic;
 using System.Linq;
 
 /*
- Протокол соревнований по прыжкам в воду содержит список фамилий спортсменов
-и баллы, выставленные 5 судьями по результатам 2 прыжков. Получить итоговый
-протокол, содержащий фамилии и результаты, в порядке занятых спортсменами
-мест по результатам 2 прыжков.
+ Японская радиокомпания провела опрос радиослушателей по трем вопросам:
+а). Какое животное Вы связываете с Японией и японцами?
+б). Какая черта характера присуща японцам больше всего?
+в). Какай неодушевленный предмет или понятие Вы связываете с Японией?
+Большинство опрошенных прислали ответы на все или часть вопросов.
+Составить программу получения первых пяти наиболее часто встречающихся
+ответов по каждому вопросу и доли (в %) каждого такого ответа.
+Предусмотреть необходимость сжатия столбца ответов в случае отсутствия
+ответов на некоторые вопросы.
  */
 
 class Program
 {
     static void Main()
     {
-        // Предположим, что у нас есть следующий протокол соревнований:
-        Dictionary<string, List<int>> scores = new Dictionary<string, List<int>>();
-        scores["Иванов"] = new List<int> {7, 8, 9, 6, 5};
-        scores["Сидоров"] = new List<int> {6, 5, 4, 3, 2};
-        scores["Петров"] = new List<int> {8, 7, 6, 5, 4};
-
-        var totalScores = scores
-            .ToList()
-            .Select(kvp => new Sportsman(kvp.Key, kvp.Value.Sum()))
-            .OrderByDescending(x => x.TotalScore);
-
-        Dictionary<string, List<int>> sortedScores = new Dictionary<string, List<int>>();
-        foreach (var item in totalScores)
+        var rnd = new Random();
+        var firstQuestionVars = new[]
         {
-            sortedScores.Add(item.Name, scores[item.Name]);
+            "Аист малый", "Бакланы", "Барсук", "Волк", "Дятел",
+            "Енотовидная собака", "Заяц", "Иволга", "Кабан", "Кит"
+        };
+        var secondQuestionVars = new[]
+        {
+            "Дисциплинированность", "Сдержанность", "Стремление", "Патриотизм", "Экономия",
+            "Бережное отношение к природе", "Коллективизм", "Трудолюбие", "Уважение", "Традиционализм"
+        };
+        var thirdQuestionVars = new[]
+        {
+            "Сакура", "фейерверк", "Бонсай", "Чай", "Кимоно",
+            "Сакэ", "аниме", "Тории", "Фугу", "Бусидо"
+        };
+
+        var firstQuestionAnswers = new List<string>();
+        var secondQuestionAnswers = new List<string>();
+        var thirdQuestionAnswers = new List<string>();
+        for (var i = 0; i < 100; i++)
+        {
+            firstQuestionAnswers.Add(firstQuestionVars[rnd.Next(firstQuestionVars.Length)]);
+            secondQuestionAnswers.Add(secondQuestionVars[rnd.Next(secondQuestionVars.Length)]);
+            thirdQuestionAnswers.Add(thirdQuestionVars[rnd.Next(thirdQuestionVars.Length)]);
         }
 
-        scores = sortedScores;
-
-        // Выводим итоговый протокол
-        foreach (var item in scores)
-        {
-            Console.WriteLine($"{item.Key}: {string.Join(", ", item.Value)}");
-        }
+        Console.WriteLine("Топ 5 ответов на вопрос - Какое животное Вы связываете с Японией и японцами?");
+        GetTopAnswers(firstQuestionAnswers);
+        Console.WriteLine("\nТоп 5 ответов на вопрос - Какая черта характера присуща японцам больше всего?");
+        GetTopAnswers(secondQuestionAnswers);
+        Console.WriteLine("\nТоп 5 ответов на вопрос - Какай неодушевленный предмет или понятие Вы связываете с Японией?");
+        GetTopAnswers(thirdQuestionAnswers);
     }
-}
 
-class Sportsman
-{
-    public string Name { get; set; }
-    public int TotalScore { get; set; }
-
-    // Конструктор
-    public Sportsman(string name, int totalScore)
+    static void GetTopAnswers(List<string> answers)
     {
-        Name = name;
-        TotalScore = totalScore;
+        var dictionary = new Dictionary<string, int>();
+
+        foreach (var answer in answers)
+        {
+            if (!dictionary.ContainsKey(answer))
+            {
+                dictionary[answer] = 1;
+            }
+            else
+            {
+                dictionary[answer]++;
+            }
+        }
+
+        var keyValuePairs = dictionary
+            .OrderBy(x => x.Value)
+            .Reverse()
+            .ToList();
+
+        for (var i = 0; i < 5; i++)
+        {
+            var entry = keyValuePairs[i];
+            var percentage = ((double) entry.Value / answers.Count) * 100;
+            Console.WriteLine($"'{entry.Key}': {percentage:F2}%");
+        }
     }
 }
+
