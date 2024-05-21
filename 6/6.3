@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 /*
- Японская радиокомпания провела опрос радиослушателей по трем вопросам:
+Японская радиокомпания провела опрос радиослушателей по трем вопросам:
 а). Какое животное Вы связываете с Японией и японцами?
 б). Какая черта характера присуща японцам больше всего?
 в). Какай неодушевленный предмет или понятие Вы связываете с Японией?
@@ -12,74 +12,76 @@ using System.Linq;
 ответов по каждому вопросу и доли (в %) каждого такого ответа.
 Предусмотреть необходимость сжатия столбца ответов в случае отсутствия
 ответов на некоторые вопросы.
- */
+*/
 
 class Program
 {
-    static void Main()
-    {
-        var rnd = new Random();
-        var firstQuestionVars = new[]
-        {
-            "Аист малый", "Бакланы", "Барсук", "Волк", "Дятел",
-            "Енотовидная собака", "Заяц", "Иволга", "Кабан", "Кит"
-        };
-        var secondQuestionVars = new[]
-        {
-            "Дисциплинированность", "Сдержанность", "Стремление", "Патриотизм", "Экономия",
-            "Бережное отношение к природе", "Коллективизм", "Трудолюбие", "Уважение", "Традиционализм"
-        };
-        var thirdQuestionVars = new[]
-        {
-            "Сакура", "фейерверк", "Бонсай", "Чай", "Кимоно",
-            "Сакэ", "аниме", "Тории", "Фугу", "Бусидо"
-        };
+    private static Random _random = new Random(); 
+    
+    static void Main()
+    {
+        var firstQuestionVars = new[]
+        {
+            "Аист малый", "Бакланы", "Барсук", "Волк", "Дятел",
+            "Енотовидная собака", "Заяц", "Иволга", "Кабан", "Кит"
+        };
+        var secondQuestionVars = new[]
+        {
+            "Дисциплинированность", "Сдержанность", "Стремление", "Патриотизм", "Экономия",
+            "Бережное отношение к природе", "Коллективизм", "Трудолюбие", "Уважение", "Традиционализм"
+        };
+        var thirdQuestionVars = new[]
+        {
+            "Сакура", "фейерверк", "Бонсай", "Чай", "Кимоно",
+            "Сакэ", "аниме", "Тории", "Фугу", "Бусидо"
+        };
 
-        var firstQuestionAnswers = new List<string>();
-        var secondQuestionAnswers = new List<string>();
-        var thirdQuestionAnswers = new List<string>();
-        for (var i = 0; i < 100; i++)
-        {
-            firstQuestionAnswers.Add(firstQuestionVars[rnd.Next(firstQuestionVars.Length)]);
-            secondQuestionAnswers.Add(secondQuestionVars[rnd.Next(secondQuestionVars.Length)]);
-            thirdQuestionAnswers.Add(thirdQuestionVars[rnd.Next(thirdQuestionVars.Length)]);
-        }
+        var firstQuestionAnswers = firstQuestionVars
+            .Select(answer => new Review(answer, _random.Next(firstQuestionVars.Length)))
+            .ToList();
+        var secondQuestionAnswers = secondQuestionVars
+            .Select(answer => new Review(answer, _random.Next(secondQuestionVars.Length)))
+            .ToList();
+        var thirdQuestionAnswers = thirdQuestionVars
+            .Select(answer => new Review(answer, _random.Next(thirdQuestionVars.Length)))
+            .ToList();
 
-        Console.WriteLine("Топ 5 ответов на вопрос - Какое животное Вы связываете с Японией и японцами?");
-        GetTopAnswers(firstQuestionAnswers);
-        Console.WriteLine("\nТоп 5 ответов на вопрос - Какая черта характера присуща японцам больше всего?");
-        GetTopAnswers(secondQuestionAnswers);
-        Console.WriteLine("\nТоп 5 ответов на вопрос - Какай неодушевленный предмет или понятие Вы связываете с Японией?");
-        GetTopAnswers(thirdQuestionAnswers);
-    }
+        Console.WriteLine("Топ 5 ответов на вопрос - Какое животное Вы связываете с Японией и японцами?");
+        GetTopAnswers(firstQuestionAnswers);
+        Console.WriteLine("\nТоп 5 ответов на вопрос - Какая черта характера присуща японцам больше всего?");
+        GetTopAnswers(secondQuestionAnswers);
+        Console.WriteLine("\nТоп 5 ответов на вопрос - Какай неодушевленный предмет или понятие Вы связываете с Японией?");
+        GetTopAnswers(thirdQuestionAnswers);
+    }
 
-    static void GetTopAnswers(List<string> answers)
-    {
-        var dictionary = new Dictionary<string, int>();
+    private static List<Review> LoadReview(String[] data)
+    {
+        return data.Select(answer => new Review(answer, _random.Next(data.Length))).ToList();
+    }
 
-        foreach (var answer in answers)
-        {
-            if (!dictionary.ContainsKey(answer))
-            {
-                dictionary[answer] = 1;
-            }
-            else
-            {
-                dictionary[answer]++;
-            }
-        }
+    static void GetTopAnswers(List<Review> answers)
+    {
+        answers.Sort((r1, r2) => r1.Count.CompareTo(r2.Count));
+        answers.Reverse();
 
-        var keyValuePairs = dictionary
-            .OrderBy(x => x.Value)
-            .Reverse()
-            .ToList();
-
-        for (var i = 0; i < 5; i++)
-        {
-            var entry = keyValuePairs[i];
-            var percentage = ((double) entry.Value / answers.Count) * 100;
-            Console.WriteLine($"'{entry.Key}': {percentage:F2}%");
-        }
-    }
+        var answersCount = answers.Select(a => a.Count).Sum();
+        
+        for (var i = 0; i < 5; i++)
+        {
+            var percentage = ((double) answers[i].Count / answersCount) * 100;
+            Console.WriteLine($"'{answers[i].Answer}': {percentage:F2}%");
+        }
+    }
 }
 
+struct Review
+{
+    public string Answer{ get; }
+    public int Count { get; }
+
+    public Review(string answer, int count)
+    {
+        this.Answer = answer;
+        this.Count = count;
+    }
+}
