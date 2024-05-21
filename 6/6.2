@@ -1,54 +1,52 @@
-using System; //2
+using System;//2
 using System.Collections.Generic;
 using System.Linq;
 
 /*
- Протокол соревнований по прыжкам в воду содержит список фамилий спортсменов
+Протокол соревнований по прыжкам в воду содержит список фамилий спортсменов
 и баллы, выставленные 5 судьями по результатам 2 прыжков. Получить итоговый
 протокол, содержащий фамилии и результаты, в порядке занятых спортсменами
 мест по результатам 2 прыжков.
- */
+*/
 
 class Program
 {
-    static void Main()
-    {
-        // Предположим, что у нас есть следующий протокол соревнований:
-        Dictionary<string, List<int>> scores = new Dictionary<string, List<int>>();
-        scores["Иванов"] = new List<int> {7, 8, 9, 6, 5};
-        scores["Сидоров"] = new List<int> {6, 5, 4, 3, 2};
-        scores["Петров"] = new List<int> {8, 7, 6, 5, 4};
+    static void Main()
+    {
+        // Предположим, что у нас есть следующий протокол соревнований:
+        Dictionary<string, int[,]> scores = new Dictionary<string, int[,]>();
+        scores["Иванов"] = new[,] {{7, 8}, {9, 6}, {5, 7}, {8, 9}, {6, 5}};
+        scores["Сидоров"] = new[,] {{6, 5}, {4, 3}, {2, 6}, {5, 4}, {3, 2}};
+        scores["Петров"] = new[,] {{8, 7}, {6, 5}, {4,8}, {7, 6}, {5, 4}};
 
-        var totalScores = scores
-            .ToList()
-            .Select(kvp => new Sportsman(kvp.Key, kvp.Value.Sum()))
-            .OrderByDescending(x => x.TotalScore);
+        var totalScores = scores
+            .ToList()
+            .Select(kvp => new Sportsman(kvp.Key, GetAverage(kvp.Value)))
+            .OrderByDescending(x => x.TotalScore);
 
-        Dictionary<string, List<int>> sortedScores = new Dictionary<string, List<int>>();
-        foreach (var item in totalScores)
-        {
-            sortedScores.Add(item.Name, scores[item.Name]);
-        }
+        // Выводим итоговый протокол
+        foreach (var sportsman in totalScores)
+        {
+            Console.WriteLine($"{sportsman.Name}: {string.Join(", ", sportsman.TotalScore)}");
+        }
+    }
 
-        scores = sortedScores;
-
-        // Выводим итоговый протокол
-        foreach (var item in scores)
-        {
-            Console.WriteLine($"{item.Key}: {string.Join(", ", item.Value)}");
-        }
-    }
+    private static double GetAverage(int[,] data)
+    {
+        var sum = data.Cast<int>().Sum();
+        return (double)sum / data.Length;
+    }
 }
 
-class Sportsman
+struct Sportsman
 {
-    public string Name { get; set; }
-    public int TotalScore { get; set; }
+    public string Name { get; set; }
+    public double TotalScore { get; set; }
 
-    // Конструктор
-    public Sportsman(string name, int totalScore)
-    {
-        Name = name;
-        TotalScore = totalScore;
-    }
+    // Конструктор
+    public Sportsman(string name, double totalScore)
+    {
+        Name = name;
+        TotalScore = totalScore;
+    }
 }
